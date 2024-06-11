@@ -1,5 +1,5 @@
 all:
-	gcc main.c module/*.c -o bin/simulator -lm
+	gcc main.c module/*.c -o simulator -lm
 
 run:
-	bin/simulator
+	./simulator
