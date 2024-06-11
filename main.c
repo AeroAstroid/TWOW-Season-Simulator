@@ -78,7 +78,7 @@ int main() {
 
 	fclose(output);
 
-	printf("Finished program!\n");
+	printf("Finished program! Results are in the [output.txt] file.\n");
 
 	return 0;
 }
