@@ -35,13 +35,16 @@ uint64_t next(void) {
 	return result;
 }
 
-double box_muller(double average, double stdev) {
+double multiplied_box_muller(double a1, double s1, double a2, double s2) {
 
-    uint64_t r = next();
+	uint64_t r = next();
     double x = ((double)(r >> 32)/_2e32);
     double y = ((double)(r & _2e32)/_2e32);
 
-    double z = stdev * sqrt(-2 * log(x)) * sin(TAU * y) + average;
+	double log_term = -2 * log(x);
+	double sin_term = sin(TAU * y);
+
+    double z = (a1*a2) + (a1*s2 + a2*s1) * sqrt(log_term) * sin_term + (s1*s2) * log_term * sin_term * sin_term;
 
     return z;
 }

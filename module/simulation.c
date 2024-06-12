@@ -54,14 +54,11 @@ void* simulation_thread(void* void_s) {
 
             for (int cont = 0; cont < alive_contestants; cont++) {
                 int c_id = alive_ids[cont];
-                double sim_score = box_muller(s->base_field[c_id]->average, s->base_field[c_id]->stdev);
 
-                // normalization factor
-                if (s->score_renormalization) {
-                    sim_score *= box_muller(0.5, s->score_renormalization);
-                }
-
-                round_scores[c_id] = sim_score;
+				// simulate performance
+				round_scores[c_id] = multiplied_box_muller(
+					s->base_field[c_id]->average, s->base_field[c_id]->stdev,
+					0.5, s->score_renormalization);
             }
 
             // sort alive contestants based on their simulated performance
