@@ -31,11 +31,10 @@ The program reads program parameters from the **`data/program.txt`** file. The f
 
 ## Usage
 
-This program requires the **`gcc`** compiler to run. To use it, simply clone/download this repo, and run the following commands:
+This program comes with pre-compiled executables for Windows and Linux. To run them, clone/download this repo to some folder on your computer, open a terminal of your choice in that folder, and run the command **`bin/simulator`**.
 
-* **`make all`** to compile the code;
-* **`make run`** to run the program.
+Depending on your architecture, the executables may be incompatible with your system, and you'll need to compile the code yourself. To do so, you'll need the `gcc` compiler. To compile, run the command **`gcc main.c module/*.c -o bin/simulator -lm`**.
 
-If you don't have **`make`** installed, you can simply copy and run the commands in the **`Makefile`** manually.
+If you have `make` installed on your system, you can also just use the commands **`make all`** to compile the code and **`make run`** to run it.
 
-Changing any of the three customizable data files does not require recompilation; you can simply modify them and use the run command again.
+Changing any of the three customizable data files does not require recompilation; you can simply modify them and run the executable again.
