@@ -12,7 +12,7 @@ Contestant* read_one_contestant(FILE* f, int id) {
 
     char current_c = fgetc(f);
     do {
-        if (ptr <= 75) {
+        if (ptr < 75) {
             parsed_name[ptr] = current_c;
             ptr++;
         }
