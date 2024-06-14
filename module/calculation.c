@@ -10,12 +10,12 @@
 static uint64_t s[4];
 
 void seed_xoshiro() {
-    struct timespec seed_time;
+	struct timespec seed_time;
 	clock_gettime(CLOCK_REALTIME, &seed_time);
 	s[0] = seed_time.tv_nsec;
-    s[1] = seed_time.tv_nsec;
-    s[2] = seed_time.tv_nsec;
-    s[3] = seed_time.tv_nsec;
+	s[1] = seed_time.tv_nsec;
+	s[2] = seed_time.tv_nsec;
+	s[3] = seed_time.tv_nsec;
 }
 
 uint64_t next(void) {
@@ -38,58 +38,58 @@ uint64_t next(void) {
 double multiplied_box_muller(double a1, double s1, double a2, double s2) {
 
 	uint64_t r = next();
-    double x = ((double)(r >> 32)/_2e32);
-    double y = ((double)(r & _2e32)/_2e32);
+	double x = ((double)(r >> 32)/_2e32);
+	double y = ((double)(r & _2e32)/_2e32);
 
 	double log_term = -2 * log(x);
 	double sin_term = sin(TAU * y);
 
-    double z = (a1*a2) + (a1*s2 + a2*s1) * sqrt(log_term) * sin_term + (s1*s2) * log_term * sin_term * sin_term;
+	double z = (a1*a2) + (a1*s2 + a2*s1) * sqrt(log_term) * sin_term + (s1*s2) * log_term * sin_term * sin_term;
 
-    return z;
+	return z;
 }
 
 int elim_threshold(int contestants, double elim_rate, int ensure_not_half) {
-    int threshold = contestants - (int)round(contestants * elim_rate);
+	int threshold = contestants - (int)round(contestants * elim_rate);
 
-    if (ensure_not_half && threshold <= ((float)contestants / 2)) {
-        threshold = (int)floor((float)contestants / 2 + 1);
-    }
+	if (ensure_not_half && threshold <= ((float)contestants / 2)) {
+		threshold = (int)floor((float)contestants / 2 + 1);
+	}
 
-    if (threshold == contestants) threshold = contestants - 1;
+	if (threshold == contestants) threshold = contestants - 1;
 
-    return threshold;
+	return threshold;
 }
 
 int qsort_partition(int* ids, double* scores, int start, int pivot_i) {
-    double pivot_score = scores[ids[pivot_i]];
-    int i = (start - 1);
-    int temp;
+	double pivot_score = scores[ids[pivot_i]];
+	int i = (start - 1);
+	int temp;
 
-    for (int j = start; j <= pivot_i - 1; j++) {
-        if (scores[ids[j]] > pivot_score) {
-            i++;
+	for (int j = start; j <= pivot_i - 1; j++) {
+		if (scores[ids[j]] > pivot_score) {
+			i++;
 
-            temp = ids[i];
-            ids[i] = ids[j];
-            ids[j] = temp;
-        }
-    }
-    
-    temp = ids[i + 1];
-    ids[i + 1] = ids[pivot_i];
-    ids[pivot_i] = temp;
+			temp = ids[i];
+			ids[i] = ids[j];
+			ids[j] = temp;
+		}
+	}
+	
+	temp = ids[i + 1];
+	ids[i + 1] = ids[pivot_i];
+	ids[pivot_i] = temp;
 
-    return i + 1;
+	return i + 1;
 }
 
 void contestant_qsort(int* ids, double* scores, int start, int end) {
-    if (start < end) {
-        int pivot_i = qsort_partition(ids, scores, start, end);
+	if (start < end) {
+		int pivot_i = qsort_partition(ids, scores, start, end);
 
-        contestant_qsort(ids, scores, start, pivot_i-1);
-        contestant_qsort(ids, scores, pivot_i+1, end);
-    }
+		contestant_qsort(ids, scores, start, pivot_i-1);
+		contestant_qsort(ids, scores, pivot_i+1, end);
+	}
 }
 
 void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td) {
