@@ -33,7 +33,7 @@ The program reads program parameters from the **`data/program.txt`** file. The f
 
 This program comes with pre-compiled executables for Windows and Linux. To run them, clone/download this repo to some folder on your computer, open a terminal of your choice in that folder, and run the command **`bin/simulator`**.
 
-Depending on your architecture, the executables may be incompatible with your system, and you'll need to compile the code yourself. To do so, you'll need the `gcc` compiler. To compile, run the command **`gcc main.c module/*.c -o bin/simulator -lm`**.
+Depending on your architecture, the executables may be incompatible with your system, and you'll need to compile the code yourself. To do so, you'll need the `gcc` compiler. To compile, run the command **`gcc main.c module/*.c -o bin/simulator -Ofast -lm -Wno-unused-result`**. After that, you can use the run command from the last paragraph.
 
 If you have `make` installed on your system, you can also just use the commands **`make all`** to compile the code and **`make run`** to run it.
 
