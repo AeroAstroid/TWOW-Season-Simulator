@@ -74,9 +74,15 @@ int main() {
 		}
 
 		fprintf(output, "\n");
+
+		free(base_field[c]);
 	}
 
 	fclose(output);
+
+	free(base_field);
+	free(sim_info);
+	free(threshold_points);
 
 	printf("Finished program! Results are in the [output.txt] file.\n");
 
