@@ -41,18 +41,31 @@ void* simulation_thread(void* void_s) {
 		int alive_ids[s->full_contestant_count]; // list of IDs for every alive contestant
 		double round_scores[s->full_contestant_count]; // simulated score for every alive contestant
 
-		int alive_contestants;
+		// Timer until life decay starts (if -1, no life decay)
+		int life_decay_timer = s->life_decay_timer;
+
+		int current_alive_count;
+		double current_elim_rate;
+		double current_prize_rate;
+		int simulated_round_count = 0;
 		
 		do {
-			alive_contestants = 0;
+			// if timer is positive, remove a round until it starts
+			if (life_decay_timer > 0) life_decay_timer--;
+
+			// determine elim and prize rates for the round
+			current_elim_rate = (life_decay_timer != 0) ? s->elim_rate : s->ld_elim_rate;
+			current_prize_rate  = (life_decay_timer != 0) ? s->life_gain_rate : s->ld_life_gain_rate;
+
+			current_alive_count = 0;
 			for (int i = 0; i < s->full_contestant_count; i++) {
 				if (current_lives[i] > 0) {
-					alive_ids[alive_contestants] = s->base_field[i]->id;
-					alive_contestants++;
+					alive_ids[current_alive_count] = s->base_field[i]->id;
+					current_alive_count++;
 				}
 			}
 
-			for (int cont = 0; cont < alive_contestants; cont++) {
+			for (int cont = 0; cont < current_alive_count; cont++) {
 				int c_id = alive_ids[cont];
 
 				// simulate performance
@@ -62,28 +75,40 @@ void* simulation_thread(void* void_s) {
 			}
 
 			// sort alive contestants based on their simulated performance
-			contestant_qsort(alive_ids, round_scores, 0, alive_contestants-1);
+			contestant_qsort(alive_ids, round_scores, 0, current_alive_count-1);
 
 			// remove a life from the ones in the elim zone
-			int round_elim_threshold = elim_threshold(alive_contestants, s->elim_rate, s->ensure_less_than_half);
-			for (int r = alive_contestants - 1; r >= round_elim_threshold; r--) {
+			int round_elim_threshold = elim_threshold(current_alive_count, current_elim_rate, s->ensure_less_than_half);
+			for (int r = current_alive_count - 1; r >= round_elim_threshold; r--) {
 				int c_id = alive_ids[r];
 				current_lives[c_id]--;
 
 				if (current_lives[c_id] == 0) {
-					final_ranks[c_id] = alive_contestants;
-					alive_contestants--;
+					final_ranks[c_id] = current_alive_count;
+					current_alive_count--;
 				}
 			}
 
 			// add a life from the ones in the life gain zone
-			int round_life_gain_threshold = round(alive_contestants * s->life_gain_rate);
+			int round_life_gain_threshold = round(current_alive_count * current_prize_rate);
 			for (int r = 0; r < round_life_gain_threshold; r++) {
 				int c_id = alive_ids[r];
-				current_lives[c_id]++;
+
+				// only add life if they're not already at the cap
+				if (s->life_cap <= 0 || current_lives[c_id] < s->life_cap)
+					current_lives[c_id]++;
 			}
 
-		} while (alive_contestants > 1);
+			// post-results life decay if the timer is at exactly 0
+			if (life_decay_timer == 0) {
+				for (int c = 0; c < s->full_contestant_count; c++) {
+					if (current_lives[c] > 1) current_lives[c]--;
+				}
+			}
+
+			simulated_round_count++;
+
+		} while (current_alive_count > 1);
 
 		final_ranks[alive_ids[0]] = 1;
 
@@ -100,5 +125,10 @@ void* simulation_thread(void* void_s) {
 				}
 			}
 		}
+
+		// increment global round counter
+		LOCK_THREADS;
+			s->total_rounds_taken += simulated_round_count;
+		UNLOCK_THREADS;
 	}
 }

@@ -12,15 +12,19 @@ The sample file in the repo contains data for all EWOW contestants as of EWOW 3B
 
 ### Game Data
 
-The program reads game variables from the **`data/game.txt`** file. The file contains five customizable variables:
+The program reads game variables from the **`data/game.txt`** file. The file contains nine customizable variables:
 
 * **`ELIM_RATE`:** the percentage of contestants that get eliminated/lose a life per round, expressed as a decimal value;
-* **`ENSURE_LESS_THAN_HALF`:** a boolean value (0 or 1). If set to 1, the elimination region will always be less than half the contestant field (except in finales), such as in EWOW;
 * **`LIFE_GAIN_RATE`:** the percentage of contestants that gain a life per round, expressed as a decimal value;
+* **`ENSURE_LESS_THAN_HALF`:** a boolean value (0 or 1). If set to 1, the elimination region will always be less than half the contestant field (except in finales), such as in EWOW;
+* **`LIFE_CAP`:** the amount of lives at which a contestant can't gain any extra lives. If a contestant at the life cap places in the prize region, their life count does not change. Set this to 0 or -1 to have no life cap;
+* **`LIFE_DECAY_TIMER`:** the amount of simulated rounds until life decay kicks in. Life decay makes it so after results for each round, every contestant who isn't already on 1 life has their life count decayed by 1, such as in EWOW. Set this to 0 to make life decay start instantly, set this to -1 to have no life decay;
+* **`LD_ELIM_RATE`:** once/if life decay starts, the elim rate variable will be set to this value for the rest of the season;
+* **`LD_LIFE_GAIN_RATE`:** once/if life decay starts, the life gain rate variable will be set to this value for the rest of the season;
 * **`SCORE_RENORMALIZATION`:** the strength of the score renormalization. _It is highly recommended to not change this value unless you know what you're doing;_
 * **`THRESHOLD_POINTS`:** a list of contestant counts for which the program will output contestant odds (e.g. Top 5000, Top 1000, Top 500, etc).
 
-The sample file in the repo contains values applicable to EWOW as of EWOW 3B.
+The sample file in the repo contains values applicable to EWOW.
 
 ### Program Data
 

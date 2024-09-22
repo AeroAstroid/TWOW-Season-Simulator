@@ -2,25 +2,43 @@
 #include <stdlib.h>
 #include "input.h"
 
-SimulationInfo* create_sim_info(int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, int e_lh, double lg_r, double s_rn) {
+SimulationInfo* create_sim_info(
+	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, int e_lh, 
+	double lg_r, int l_c, int ld_t, double ld_e_r, double ld_lg_r, double s_rn) {
+
 	SimulationInfo* s = malloc(sizeof(SimulationInfo));
 
 	s->iteration_target = i_t;
+
 	s->base_field = b_f;
 	s->full_contestant_count = c_count;
+
 	s->threshold_points = t_pts;
 	s->game_stages = g_s;
-	s->aggregate_results = a_r;
-
+	
 	s->elim_rate = e_r;
-	s->ensure_less_than_half = e_lh;
 	s->life_gain_rate = lg_r;
+	s->ensure_less_than_half = e_lh;
+
+	s->life_cap = l_c;
+
+	s->life_decay_timer = ld_t;
+	s->ld_elim_rate = ld_e_r;
+	s->ld_life_gain_rate = ld_lg_r;
+
 	s->score_renormalization = s_rn;
+
+	s->aggregate_results = a_r;
+	s->total_rounds_taken = 0;
 
 	return s;
 }
 
-void read_game_rules(char* f_name, double* elim_rate, int* ensure_less_half, double* life_gain_rate, double* score_renorm, int** threshold_points, int* game_stages) {
+void read_game_rules(char* f_name, 
+	double* elim_rate, int* ensure_less_half, double* life_gain_rate, int* life_cap,
+	int* life_decay_timer, double* ld_elim_rate, double* ld_life_gain_rate,
+	double* score_renorm, int** threshold_points, int* game_stages)	{
+	
 	FILE* f = fopen(f_name, "r");
 
 	if (f == NULL) {
@@ -28,19 +46,29 @@ void read_game_rules(char* f_name, double* elim_rate, int* ensure_less_half, dou
 		exit(-1);
 	}
 
-	char buf[25];
+	char buf[32];
 
 	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", elim_rate);
 	fscanf(f, "%s", buf);
-	fscanf(f, "%d", ensure_less_half);
-	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", life_gain_rate);
+	fscanf(f, "%s", buf);
+	fscanf(f, "%d", ensure_less_half);
+
+	fscanf(f, "%s", buf);
+	fscanf(f, "%d", life_cap);
+
+	fscanf(f, "%s", buf);
+	fscanf(f, "%d", life_decay_timer);
+	fscanf(f, "%s", buf);
+	fscanf(f, "%lf", ld_elim_rate);
+	fscanf(f, "%s", buf);
+	fscanf(f, "%lf", ld_life_gain_rate);
+
 	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", score_renorm);
 	fscanf(f, "%s", buf);
 
-	
 	int read_game_stages = 0;
 	int last_read_threshold;
 
@@ -69,7 +97,7 @@ void read_program_params(char* f_name, int* iteration_target, int* thread_count)
 		exit(-1);
 	}
 
-	char buf[25];
+	char buf[32];
 
 	fscanf(f, "%s", buf);
 	fscanf(f, "%d", iteration_target);
