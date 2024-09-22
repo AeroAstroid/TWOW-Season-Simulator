@@ -8,7 +8,7 @@ The program reads contestant performance data from the **`data/distributions.txt
 
 For highest accuracy, it is recommended to use **standardized ranks** as the performance data, however **normalized ranks** are an acceptable substitute.
 
-The sample file in the repo contains data for all EWOW contestants as of EWOW 3B.
+The sample file in the repo contains data for all EWOW contestants as of EWOW 6B.
 
 ### Game Data
 
@@ -24,7 +24,7 @@ The program reads game variables from the **`data/game.txt`** file. The file con
 * **`SCORE_RENORMALIZATION`:** the strength of the score renormalization. _It is highly recommended to not change this value unless you know what you're doing;_
 * **`THRESHOLD_POINTS`:** a list of contestant counts for which the program will output contestant odds (e.g. Top 5000, Top 1000, Top 500, etc).
 
-The sample file in the repo contains values applicable to EWOW.
+The sample file in the repo contains values applicable to EWOW's game state as of EWOW 6B.
 
 ### Program Data
 
