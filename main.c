@@ -1,6 +1,10 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+// Compatibility defines to make sure the timer works on non-POSIX
+#define _GNU_SOURCE
+#define _POSIX_C_SOURCE 199309L
 #include <time.h>
 
 #include "module/contestant.h"
