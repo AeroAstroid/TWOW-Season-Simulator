@@ -4,7 +4,7 @@
 
 SimulationInfo* create_sim_info(
 	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, int e_lh, 
-	double lg_r, int l_c, int ld_t, double ld_e_r, double ld_lg_r, double s_rn) {
+	double lg_r, int l_c, int d_f, int ld_t, int s_c, double ld_e_r, double ld_lg_r, double s_rn) {
 
 	SimulationInfo* s = malloc(sizeof(SimulationInfo));
 
@@ -21,8 +21,10 @@ SimulationInfo* create_sim_info(
 	s->ensure_less_than_half = e_lh;
 
 	s->life_cap = l_c;
+	s->decay_floor = d_f;
 
 	s->life_decay_timer = ld_t;
+	s->shrinking_ceiling = s_c;
 	s->ld_elim_rate = ld_e_r;
 	s->ld_life_gain_rate = ld_lg_r;
 
@@ -36,8 +38,8 @@ SimulationInfo* create_sim_info(
 
 void read_game_rules(char* f_name, 
 	double* elim_rate, int* ensure_less_half, double* life_gain_rate, int* life_cap,
-	int* life_decay_timer, double* ld_elim_rate, double* ld_life_gain_rate,
-	double* score_renorm, int** threshold_points, int* game_stages)	{
+	int* decay_floor, int* life_decay_timer, int* shrinking_ceiling, double* ld_elim_rate,
+	double* ld_life_gain_rate, 	double* score_renorm, int** threshold_points, int* game_stages)	{
 	
 	FILE* f = fopen(f_name, "r");
 
@@ -57,9 +59,13 @@ void read_game_rules(char* f_name,
 
 	fscanf(f, "%s", buf);
 	fscanf(f, "%d", life_cap);
+	fscanf(f, "%s", buf);
+	fscanf(f, "%d", decay_floor);
 
 	fscanf(f, "%s", buf);
 	fscanf(f, "%d", life_decay_timer);
+	fscanf(f, "%s", buf);
+	fscanf(f, "%d", shrinking_ceiling);
 	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", ld_elim_rate);
 	fscanf(f, "%s", buf);
