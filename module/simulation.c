@@ -48,6 +48,7 @@ void* simulation_thread(void* void_s) {
 		double current_elim_rate;
 		double current_prize_rate;
 		int simulated_round_count = 0;
+		int decay_reached_flag = 0;
 		
 		do {
 			// if timer is positive, remove a round until it starts
@@ -62,6 +63,18 @@ void* simulation_thread(void* void_s) {
 				if (current_lives[i] > 0) {
 					alive_ids[current_alive_count] = s->base_field[i]->id;
 					current_alive_count++;
+				}
+			}
+			
+			// Output round #, contestant count to stdout when decay is over
+			int max_lives = 0;
+			if (!decay_reached_flag) {
+				for (int c = 0; c < s->full_contestant_count; c++)
+					if (current_lives[c] > max_lives) max_lives = current_lives[c];
+
+				if (max_lives <= s->decay_floor) {
+					printf("%d, %d\n", simulated_round_count, current_alive_count);
+					decay_reached_flag = 1;
 				}
 			}
 
@@ -99,15 +112,24 @@ void* simulation_thread(void* void_s) {
 					current_lives[c_id]++;
 			}
 
-			// post-results life decay if the timer is at exactly 0
 			if (life_decay_timer == 0) {
-				for (int c = 0; c < s->full_contestant_count; c++) {
-					if (current_lives[c] > 1) current_lives[c]--;
+				
+				// post-results ceiling decrement if the timer is at exactly 0
+				if (s->shrinking_ceiling && s->life_cap >= 0 && s->life_cap > s->decay_floor) {
+					s->life_cap--;
+					// set contestant to new life cap if they exceed it
+					for (int c = 0; c < s->full_contestant_count; c++)
+						if (current_lives[c] > s->life_cap) current_lives[c] = s->life_cap;
 				}
+				else {
+					// post-results life decay if the timer is at exactly 0
+					for (int c = 0; c < s->full_contestant_count; c++) 
+						if (current_lives[c] > s->decay_floor) current_lives[c]--;
+				}
+
 			}
 
 			simulated_round_count++;
-
 		} while (current_alive_count > 1);
 
 		final_ranks[alive_ids[0]] = 1;
