@@ -1,10 +1,6 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-// Compatibility defines to make sure the timer works on non-POSIX
-#define _GNU_SOURCE
-#define _POSIX_C_SOURCE 199309L
 #include <time.h>
 
 #include "module/contestant.h"
@@ -16,14 +12,15 @@ int main() {
 	// seed the random number generator
 	seed_xoshiro();
 
-	int ensure_less_half, iteration_target, thread_count, contestant_count, game_stages, life_decay_timer, life_cap;
-	double elim_rate, life_gain_rate, score_renorm, ld_elim_rate, ld_life_gain_rate;
+	int ensure_less_half, iteration_target, thread_count, contestant_count, 
+		game_stages, life_decay_timer, life_decay_floor, life_cap;
+	double elim_rate, life_gain_rate, ld_elim_rate, ld_life_gain_rate;
 	int* threshold_points;
 
 	read_game_rules("data/game.txt",
 		&elim_rate, &ensure_less_half, &life_gain_rate, &life_cap,
-		&life_decay_timer, &ld_elim_rate, &ld_life_gain_rate,
-		&score_renorm, &threshold_points, &game_stages);
+		&life_decay_timer, &life_decay_floor, &ld_elim_rate, &ld_life_gain_rate,
+		&threshold_points, &game_stages);
 	
 	read_program_params("data/program.txt", &iteration_target, &thread_count);
 
@@ -38,7 +35,7 @@ int main() {
 	// create struct of simulation parameters that gets passed onto each thread
 	SimulationInfo* sim_info = create_sim_info(iteration_target, base_field, contestant_count, threshold_points,
 		game_stages, aggregate_results, elim_rate, ensure_less_half, life_gain_rate, life_cap, life_decay_timer,
-		ld_elim_rate, ld_life_gain_rate, score_renorm);
+		life_decay_floor, ld_elim_rate, ld_life_gain_rate);
 
 	printf("Running %d season simulations on %d thread(s)\n", iteration_target, thread_count);
 	

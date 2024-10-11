@@ -14,6 +14,10 @@ int iterations_started = 0;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+// Strength of renormalization for the score model
+// 0 -> unmodified gaussian RNG (old style of TWOW sims, horrifically unbalanced)
+double SCORE_RENORMALIZATION = 0.28;
+
 void* simulation_thread(void* void_s) {
 	// convert the void pointer to the appropriate struct
 	SimulationInfo* s = (SimulationInfo*) void_s;
@@ -28,29 +32,41 @@ void* simulation_thread(void* void_s) {
 
 		// copy the lives data for all contestants
 		int current_lives[s->full_contestant_count];
-		for (int i = 0; i < s->full_contestant_count; i++) {
-			current_lives[i] = s->base_field[i]->start_lives;
-		}
 
-		// init final ranks array
+		// [CURRENTLY UNUSED] DRP level array for all contestants
+		int drp_level[s->full_contestant_count];
+
+		// final ranks data for all contestants
 		int final_ranks[s->full_contestant_count];
+
 		for (int i = 0; i < s->full_contestant_count; i++) {
+			// Default starting life count for each contestant is whatever they have in the data
+			current_lives[i] = s->base_field[i]->start_lives;
+
+			// Default DRP level for each contestant is 0 (single response)
+			drp_level[i] = 0;
+
+			// Default final rank for each contestant is -1 (still alive)
 			final_ranks[i] = -1;
 		}
+		
+		// last simulated score for every contestant
+		double round_scores[s->full_contestant_count];
 
-		int alive_ids[s->full_contestant_count]; // list of IDs for every alive contestant
-		double round_scores[s->full_contestant_count]; // simulated score for every alive contestant
+		// list of all contestant IDs that are currently alive
+		int alive_ids[s->full_contestant_count];
 
-		// Timer until life decay starts (if -1, no life decay)
+		// Rounds until life decay starts (if -1, no life decay)
 		int life_decay_timer = s->life_decay_timer;
 
 		int current_alive_count;
 		double current_elim_rate;
 		double current_prize_rate;
+
 		int simulated_round_count = 0;
 		
 		do {
-			// if timer is positive, remove a round until it starts
+			// if life decay timer is positive, remove a round until it starts
 			if (life_decay_timer > 0) life_decay_timer--;
 
 			// determine elim and prize rates for the round
@@ -68,14 +84,27 @@ void* simulation_thread(void* void_s) {
 			for (int cont = 0; cont < current_alive_count; cont++) {
 				int c_id = alive_ids[cont];
 
-				// simulate performance
-				round_scores[c_id] = multiplied_box_muller(
-					s->base_field[c_id]->average, s->base_field[c_id]->stdev,
-					0.5, s->score_renormalization);
+				round_scores[c_id] = -99999;
+
+				// simulate performance by rolling gaussian rng for each response the player has
+				// pick the highest as per standard DRP/TRP rules
+				for (int resp = 0; resp <= drp_level[c_id]; resp++) {
+
+					double response_score = multiplied_box_muller(
+						s->base_field[c_id]->average, s->base_field[c_id]->stdev,
+						0.5, SCORE_RENORMALIZATION);
+					
+					if (response_score > round_scores[c_id]) round_scores[c_id] = response_score;
+				}
 			}
 
 			// sort alive contestants based on their simulated performance
 			contestant_qsort(alive_ids, round_scores, 0, current_alive_count-1);
+
+			// wipe slate clean for next round's DRP data
+			for (int i = 0; i < s->full_contestant_count; i++) {
+				drp_level[i] = 0;
+			}
 
 			// remove a life from the ones in the elim zone
 			int round_elim_threshold = elim_threshold(current_alive_count, current_elim_rate, s->ensure_less_than_half);
@@ -94,15 +123,17 @@ void* simulation_thread(void* void_s) {
 			for (int r = 0; r < round_life_gain_threshold; r++) {
 				int c_id = alive_ids[r];
 
-				// only add life if they're not already at the cap
-				if (s->life_cap <= 0 || current_lives[c_id] < s->life_cap)
+				// add life if they're not already at the cap AND if life decay isn't active
+				if ((s->life_cap <= 0 || current_lives[c_id] < s->life_cap) && life_decay_timer != 0)
 					current_lives[c_id]++;
 			}
 
-			// post-results life decay if the timer is at exactly 0
+			// post-results life decay if the life decay phase is active
 			if (life_decay_timer == 0) {
 				for (int c = 0; c < s->full_contestant_count; c++) {
-					if (current_lives[c] > 1) current_lives[c]--;
+					if (current_lives[c] > s->life_decay_floor) {
+						current_lives[c]--;
+					}
 				}
 			}
 

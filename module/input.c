@@ -4,7 +4,7 @@
 
 SimulationInfo* create_sim_info(
 	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, int e_lh, 
-	double lg_r, int l_c, int ld_t, double ld_e_r, double ld_lg_r, double s_rn) {
+	double lg_r, int l_c, int ld_t, int ld_f, double ld_e_r, double ld_lg_r) {
 
 	SimulationInfo* s = malloc(sizeof(SimulationInfo));
 
@@ -23,10 +23,9 @@ SimulationInfo* create_sim_info(
 	s->life_cap = l_c;
 
 	s->life_decay_timer = ld_t;
+	s->life_decay_floor = ld_f;
 	s->ld_elim_rate = ld_e_r;
 	s->ld_life_gain_rate = ld_lg_r;
-
-	s->score_renormalization = s_rn;
 
 	s->aggregate_results = a_r;
 	s->total_rounds_taken = 0;
@@ -36,8 +35,8 @@ SimulationInfo* create_sim_info(
 
 void read_game_rules(char* f_name, 
 	double* elim_rate, int* ensure_less_half, double* life_gain_rate, int* life_cap,
-	int* life_decay_timer, double* ld_elim_rate, double* ld_life_gain_rate,
-	double* score_renorm, int** threshold_points, int* game_stages)	{
+	int* life_decay_timer, int* life_decay_floor, double* ld_elim_rate, double* ld_life_gain_rate,
+	int** threshold_points, int* game_stages) {
 	
 	FILE* f = fopen(f_name, "r");
 
@@ -61,12 +60,12 @@ void read_game_rules(char* f_name,
 	fscanf(f, "%s", buf);
 	fscanf(f, "%d", life_decay_timer);
 	fscanf(f, "%s", buf);
+	fscanf(f, "%d", life_decay_floor);
+	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", ld_elim_rate);
 	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", ld_life_gain_rate);
 
-	fscanf(f, "%s", buf);
-	fscanf(f, "%lf", score_renorm);
 	fscanf(f, "%s", buf);
 
 	int read_game_stages = 0;
