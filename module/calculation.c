@@ -36,15 +36,18 @@ uint64_t next(void) {
 }
 
 double multiplied_box_muller(double a1, double s1, double a2, double s2) {
+	double z;
 
-	uint64_t r = next();
-	double x = ((double)(r >> 32)/_2e32);
-	double y = ((double)(r & _2e32)/_2e32);
+	do {
+		uint64_t r = next();
+		double x = ((double)(r >> 32)/_2e32);
+		double y = ((double)(r & _2e32)/_2e32);
 
-	double log_term = -2 * log(x);
-	double sin_term = sin(TAU * y);
+		double log_term = -2 * log(x);
+		double trig_term = sin(TAU * y);
 
-	double z = (a1*a2) + (a1*s2 + a2*s1) * sqrt(log_term) * sin_term + (s1*s2) * log_term * sin_term * sin_term;
+		z = (a1*a2) + (a1*s2 + a2*s1) * sqrt(log_term) * trig_term + (s1*s2) * log_term * trig_term * trig_term;
+	} while (z < 0 || z > 1);
 
 	return z;
 }
