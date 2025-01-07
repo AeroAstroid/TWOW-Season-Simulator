@@ -9,6 +9,7 @@ typedef struct Contestant {
 	double stdev;
 
 	int start_lives;
+	int start_responses;
 } Contestant;
 
 Contestant* read_one_contestant(FILE* f, int id);

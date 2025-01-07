@@ -12,14 +12,17 @@ int main() {
 	// seed the random number generator
 	seed_xoshiro();
 
-	int ensure_less_half, iteration_target, thread_count, contestant_count, 
-		game_stages, life_decay_timer, life_decay_floor, life_cap;
-	double elim_rate, life_gain_rate, ld_elim_rate, ld_life_gain_rate;
+	int iteration_target, thread_count, contestant_count, game_stages,
+		life_decay_timer, life_decay_floor, life_cap;
+	
+	double elim_rate, prize_rate, ld_1_elim_rate, ld_1_prize_rate,
+		ld_2_elim_rate, ld_2_prize_rate;
+	
 	int* threshold_points;
 
 	read_game_rules("data/game.txt",
-		&elim_rate, &ensure_less_half, &life_gain_rate, &life_cap,
-		&life_decay_timer, &life_decay_floor, &ld_elim_rate, &ld_life_gain_rate,
+		&elim_rate, &prize_rate, &life_cap, &life_decay_timer, &life_decay_floor,
+		&ld_1_elim_rate, &ld_1_prize_rate, &ld_2_elim_rate, &ld_2_prize_rate,
 		&threshold_points, &game_stages);
 	
 	read_program_params("data/program.txt", &iteration_target, &thread_count);
@@ -34,8 +37,8 @@ int main() {
 
 	// create struct of simulation parameters that gets passed onto each thread
 	SimulationInfo* sim_info = create_sim_info(iteration_target, base_field, contestant_count, threshold_points,
-		game_stages, aggregate_results, elim_rate, ensure_less_half, life_gain_rate, life_cap, life_decay_timer,
-		life_decay_floor, ld_elim_rate, ld_life_gain_rate);
+		game_stages, aggregate_results, elim_rate, prize_rate, life_cap, life_decay_timer, life_decay_floor,
+		ld_1_elim_rate, ld_1_prize_rate, ld_2_elim_rate, ld_2_prize_rate);
 
 	printf("Running %d season simulations on %d thread(s)\n", iteration_target, thread_count);
 	

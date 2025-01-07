@@ -13,28 +13,32 @@ typedef struct SimulationInfo {
 	int game_stages;
 
 	double elim_rate;
-	double life_gain_rate;
-	int ensure_less_than_half;
+	double prize_rate;
 
 	int life_cap;
 
 	int life_decay_timer;
 	int life_decay_floor;
-	double ld_elim_rate;
-	double ld_life_gain_rate;
+
+	double ld_1_elim_rate;
+	double ld_1_prize_rate;
+
+	double ld_2_elim_rate;
+	double ld_2_prize_rate;
 
 	int* aggregate_results;
 	int total_rounds_taken;
 } SimulationInfo;
 
 SimulationInfo* create_sim_info(
-	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, int e_lh, 
-	double lg_r, int l_c, int ld_t, int ld_f, double ld_e_r, double ld_lg_r);
+	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, double p_r,
+	int l_c, int ld_t, int ld_f, double ld_1_e_r, double ld_1_p_r, double ld_2_e_r, double ld_2_p_r);
 
 void read_game_rules(char* f_name, 
-	double* elim_rate, int* ensure_less_half, double* life_gain_rate, int* life_cap,
-	int* life_decay_timer, int* life_decay_floor, double* ld_elim_rate, double* ld_life_gain_rate,
-	int** threshold_points, int* game_stages);
+	double* elim_rate, double* prize_rate, int* life_cap, int* life_decay_timer,
+	int* life_decay_floor, double* ld_1_elim_rate, double* ld_1_prize_rate,
+	double* ld_2_elim_rate, double* ld_2_prize_rate, int** threshold_points,
+	int* game_stages);
 
 void read_program_params(char* f_name, int* iteration_target, int* thread_count);
 

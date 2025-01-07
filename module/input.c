@@ -3,8 +3,8 @@
 #include "input.h"
 
 SimulationInfo* create_sim_info(
-	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, int e_lh, 
-	double lg_r, int l_c, int ld_t, int ld_f, double ld_e_r, double ld_lg_r) {
+	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, double p_r,
+	int l_c, int ld_t, int ld_f, double ld_1_e_r, double ld_1_p_r, double ld_2_e_r, double ld_2_p_r) {
 
 	SimulationInfo* s = malloc(sizeof(SimulationInfo));
 
@@ -17,15 +17,18 @@ SimulationInfo* create_sim_info(
 	s->game_stages = g_s;
 	
 	s->elim_rate = e_r;
-	s->life_gain_rate = lg_r;
-	s->ensure_less_than_half = e_lh;
+	s->prize_rate = p_r;
 
 	s->life_cap = l_c;
 
 	s->life_decay_timer = ld_t;
 	s->life_decay_floor = ld_f;
-	s->ld_elim_rate = ld_e_r;
-	s->ld_life_gain_rate = ld_lg_r;
+
+	s->ld_1_elim_rate = ld_1_e_r;
+	s->ld_1_prize_rate = ld_1_p_r;
+
+	s->ld_2_elim_rate = ld_2_e_r;
+	s->ld_2_prize_rate = ld_2_p_r;
 
 	s->aggregate_results = a_r;
 	s->total_rounds_taken = 0;
@@ -34,9 +37,10 @@ SimulationInfo* create_sim_info(
 }
 
 void read_game_rules(char* f_name, 
-	double* elim_rate, int* ensure_less_half, double* life_gain_rate, int* life_cap,
-	int* life_decay_timer, int* life_decay_floor, double* ld_elim_rate, double* ld_life_gain_rate,
-	int** threshold_points, int* game_stages) {
+	double* elim_rate, double* prize_rate, int* life_cap, int* life_decay_timer,
+	int* life_decay_floor, double* ld_1_elim_rate, double* ld_1_prize_rate,
+	double* ld_2_elim_rate, double* ld_2_prize_rate, int** threshold_points,
+	int* game_stages) {
 	
 	FILE* f = fopen(f_name, "r");
 
@@ -50,9 +54,7 @@ void read_game_rules(char* f_name,
 	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", elim_rate);
 	fscanf(f, "%s", buf);
-	fscanf(f, "%lf", life_gain_rate);
-	fscanf(f, "%s", buf);
-	fscanf(f, "%d", ensure_less_half);
+	fscanf(f, "%lf", prize_rate);
 
 	fscanf(f, "%s", buf);
 	fscanf(f, "%d", life_cap);
@@ -61,10 +63,16 @@ void read_game_rules(char* f_name,
 	fscanf(f, "%d", life_decay_timer);
 	fscanf(f, "%s", buf);
 	fscanf(f, "%d", life_decay_floor);
+
 	fscanf(f, "%s", buf);
-	fscanf(f, "%lf", ld_elim_rate);
+	fscanf(f, "%lf", ld_1_elim_rate);
 	fscanf(f, "%s", buf);
-	fscanf(f, "%lf", ld_life_gain_rate);
+	fscanf(f, "%lf", ld_1_prize_rate);
+
+	fscanf(f, "%s", buf);
+	fscanf(f, "%lf", ld_2_elim_rate);
+	fscanf(f, "%s", buf);
+	fscanf(f, "%lf", ld_2_prize_rate);
 
 	fscanf(f, "%s", buf);
 
