@@ -52,12 +52,8 @@ double multiplied_box_muller(double a1, double s1, double a2, double s2) {
 	return z;
 }
 
-int elim_threshold(int contestants, double elim_rate, int ensure_not_half) {
+int elim_threshold(int contestants, double elim_rate) {
 	int threshold = contestants - (int)round(contestants * elim_rate);
-
-	if (ensure_not_half && threshold <= ((float)contestants / 2)) {
-		threshold = (int)floor((float)contestants / 2 + 1);
-	}
 
 	if (threshold == contestants) threshold = contestants - 1;
 

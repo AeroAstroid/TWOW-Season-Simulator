@@ -33,7 +33,7 @@ void* simulation_thread(void* void_s) {
 		// copy the lives data for all contestants
 		int current_lives[s->full_contestant_count];
 
-		// [CURRENTLY UNUSED] DRP level array for all contestants
+		// DRP level array for all contestants
 		int drp_level[s->full_contestant_count];
 
 		// final ranks data for all contestants
@@ -43,8 +43,8 @@ void* simulation_thread(void* void_s) {
 			// Default starting life count for each contestant is whatever they have in the data
 			current_lives[i] = s->base_field[i]->start_lives;
 
-			// Default DRP level for each contestant is 0 (single response)
-			drp_level[i] = 0;
+			// Default DRP level for each contestant is whatever they have in the data
+			drp_level[i] = s->base_field[i]->start_responses;
 
 			// Default final rank for each contestant is -1 (still alive)
 			final_ranks[i] = -1;
@@ -56,23 +56,12 @@ void* simulation_thread(void* void_s) {
 		// list of all contestant IDs that are currently alive
 		int alive_ids[s->full_contestant_count];
 
-		// Rounds until life decay starts (if -1, no life decay)
-		int life_decay_timer = s->life_decay_timer;
-
 		int current_alive_count;
-		double current_elim_rate;
-		double current_prize_rate;
 
 		int simulated_round_count = 0;
 		
 		do {
-			// if life decay timer is positive, remove a round until it starts
-			if (life_decay_timer > 0) life_decay_timer--;
-
-			// determine elim and prize rates for the round
-			current_elim_rate = (life_decay_timer != 0) ? s->elim_rate : s->ld_elim_rate;
-			current_prize_rate  = (life_decay_timer != 0) ? s->life_gain_rate : s->ld_life_gain_rate;
-
+			// re-index the list of alive contestants
 			current_alive_count = 0;
 			for (int i = 0; i < s->full_contestant_count; i++) {
 				if (current_lives[i] > 0) {
@@ -81,6 +70,7 @@ void* simulation_thread(void* void_s) {
 				}
 			}
 
+			// score simulation
 			for (int cont = 0; cont < current_alive_count; cont++) {
 				int c_id = alive_ids[cont];
 
@@ -88,7 +78,7 @@ void* simulation_thread(void* void_s) {
 
 				// simulate performance by rolling gaussian rng for each response the player has
 				// pick the highest as per standard DRP/TRP rules
-				for (int resp = 0; resp <= drp_level[c_id]; resp++) {
+				for (int resp = 0; resp < drp_level[c_id]; resp++) {
 
 					double response_score = multiplied_box_muller(
 						s->base_field[c_id]->average, s->base_field[c_id]->stdev,
@@ -101,13 +91,11 @@ void* simulation_thread(void* void_s) {
 			// sort alive contestants based on their simulated performance
 			contestant_qsort(alive_ids, round_scores, 0, current_alive_count-1);
 
-			// wipe slate clean for next round's DRP data
-			for (int i = 0; i < s->full_contestant_count; i++) {
-				drp_level[i] = 0;
-			}
+			// calculate zone thresholds
+			int round_prize_threshold = round(current_alive_count * s->prize_rate);
+			int round_elim_threshold = elim_threshold(current_alive_count, s->elim_rate);
 
-			// remove a life from the ones in the elim zone
-			int round_elim_threshold = elim_threshold(current_alive_count, current_elim_rate, s->ensure_less_than_half);
+			// remove a life from/kill the ones in the elim zone, as well as update the alive count
 			for (int r = current_alive_count - 1; r >= round_elim_threshold; r--) {
 				int c_id = alive_ids[r];
 				current_lives[c_id]--;
@@ -118,22 +106,27 @@ void* simulation_thread(void* void_s) {
 				}
 			}
 
-			// add a life from the ones in the life gain zone
-			int round_life_gain_threshold = round(current_alive_count * current_prize_rate);
-			for (int r = 0; r < round_life_gain_threshold; r++) {
-				int c_id = alive_ids[r];
+			// select DRP level based on next round's contestant count and UDRP and UTRP thresholds
+			int universal_drp_level = (current_alive_count <= s->utrp_threshold) ? 3 : (
+				((current_alive_count <= s->udrp_threshold)) ? 2 : 1);
 
-				// add life if they're not already at the cap AND if life decay isn't active
-				if ((s->life_cap <= 0 || current_lives[c_id] < s->life_cap) && life_decay_timer != 0)
-					current_lives[c_id]++;
+			// wipe slate clean for next round's DRP data
+			for (int i = 0; i < s->full_contestant_count; i++) {
+				drp_level[i] = universal_drp_level;
 			}
 
-			// post-results life decay if the life decay phase is active
-			if (life_decay_timer == 0) {
-				for (int c = 0; c < s->full_contestant_count; c++) {
-					if (current_lives[c] > s->life_decay_floor) {
-						current_lives[c]--;
+			// apply a prize to the people in the prize region
+			for (int r = 0; r < round_prize_threshold; r++) {
+				int c_id = alive_ids[r];
+
+				if (s->prize_type) { // prize type 1 -> lives
+					// add life if they're not already at the cap
+					if (s->life_cap <= 0 || current_lives[c_id] < s->life_cap) {
+						current_lives[c_id]++;
 					}
+
+				} else { // prize type 0 -> extra response
+					drp_level[c_id]++;
 				}
 			}
 
@@ -141,8 +134,10 @@ void* simulation_thread(void* void_s) {
 
 		} while (current_alive_count > 1);
 
+		// only one contestant left; give them the winner rank
 		final_ranks[alive_ids[0]] = 1;
 
+		// log all contestant ranks in the aggregate results
 		for (int i = 0; i < s->full_contestant_count; i++) {
 			int rank = final_ranks[i];
 

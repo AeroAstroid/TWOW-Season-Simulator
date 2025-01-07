@@ -13,27 +13,26 @@ typedef struct SimulationInfo {
 	int game_stages;
 
 	double elim_rate;
-	double life_gain_rate;
-	int ensure_less_than_half;
+	double prize_rate;
+
+	int prize_type;
 
 	int life_cap;
 
-	int life_decay_timer;
-	int life_decay_floor;
-	double ld_elim_rate;
-	double ld_life_gain_rate;
+	int udrp_threshold;
+	int utrp_threshold;
 
 	int* aggregate_results;
 	int total_rounds_taken;
 } SimulationInfo;
 
 SimulationInfo* create_sim_info(
-	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, int e_lh, 
-	double lg_r, int l_c, int ld_t, int ld_f, double ld_e_r, double ld_lg_r);
+	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s,
+	int* a_r, double e_r, double p_r, int p_t, int l_c, int udrp, int utrp);
 
 void read_game_rules(char* f_name, 
-	double* elim_rate, int* ensure_less_half, double* life_gain_rate, int* life_cap,
-	int* life_decay_timer, int* life_decay_floor, double* ld_elim_rate, double* ld_life_gain_rate,
+	double* elim_rate, double* prize_rate, int* prize_type, 
+	int* life_cap, int* udrp_threshold, int* utrp_threshold,
 	int** threshold_points, int* game_stages);
 
 void read_program_params(char* f_name, int* iteration_target, int* thread_count);

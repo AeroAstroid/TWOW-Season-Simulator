@@ -32,12 +32,23 @@ Contestant* read_one_contestant(FILE* f, int id) {
 
 	current_c = fgetc(f);
 
+	// read response count if it exists
 	if (current_c == '\t') {
-		fscanf(f, "%d", &new_contestant->start_lives);
-		fgetc(f); // expend the newline
+		fscanf(f, "%d", &new_contestant->start_responses);
+
+		current_c = fgetc(f);
+
+		// read life count if it exists
+		if (current_c == '\t') {
+			fscanf(f, "%d", &new_contestant->start_lives);
+			fgetc(f); // expend the newline
+		} else {
+			new_contestant->start_lives = 1;
+		}
+
 	} else {
+		new_contestant->start_responses = 1;
 		new_contestant->start_lives = 1;
 	}
-
 	return new_contestant;
 }
