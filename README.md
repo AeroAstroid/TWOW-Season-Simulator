@@ -10,11 +10,11 @@ The program reads contestant performance data from the **`data/distributions.txt
 
 For highest accuracy, it is recommended to use **standardized ranks** as the performance data, however **normalized ranks** are an acceptable substitute.
 
-The sample file in the repo contains data for all EWOW contestants as of EWOW 10B.
+The sample file in the repo contains data for all **EWOW** contestants as of round 10.
 
 ### Game Data
 
-The program reads game variables from the **`data/game.txt`** file. The file contains 10 customizable variables:
+The program reads game variables from the **`data/game.txt`** file. The file contains 12 customizable variables:
 
 * **`ELIM_RATE`:** the percentage of contestants that get eliminated/lose a life per round, expressed as a decimal value;
 * **`PRIZE_RATE`:** the percentage of contestants that prize in each round, expressed as a decimal value. By default, prizing gives an extra life if life decay isn't active, and gives an extra response if it is;
@@ -25,9 +25,11 @@ The program reads game variables from the **`data/game.txt`** file. The file con
 * **`LD_PHASE_1_PRIZE_RATE`:** once/if phase 1 of life decay starts, the prize rate variable will be set to this value until phase 2 of life decay starts;
 * **`LD_PHASE_2_ELIM_RATE`:** once/if phase 2 of life decay starts, the elim rate variable will be set to this value for the rest of the season;
 * **`LD_PHASE_2_PRIZE_RATE`:** once/if phase 2 of life decay starts, the prize rate variable will be set to this value for the rest of the season;
+* **`UDRP_THRESHOLD`:** the contestant count at which every contestant starts to be granted 2 responses by default;
+* **`UTRP_THRESHOLD`:** the contestant count at which every contestant starts to be granted 3 responses by default (usually reserved for finales);
 * **`THRESHOLD_POINTS`:** a list of contestant counts for which the program will output contestant odds (e.g. Top 5000, Top 1000, Top 500, etc).
 
-The sample file in the repo contains values applicable to EWOW's game state as of EWOW 10B.
+The sample file in the repo contains values applicable to **EWOW**'s game state as of round 10.
 
 ### Program Data
 
