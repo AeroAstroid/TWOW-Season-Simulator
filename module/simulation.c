@@ -108,13 +108,11 @@ void* simulation_thread(void* void_s) {
 			// sort alive contestants based on their simulated performance
 			contestant_qsort(alive_ids, round_scores, 0, current_alive_count-1);
 
-			// wipe slate clean for next round's DRP data
-			for (int i = 0; i < s->full_contestant_count; i++) {
-				drp_level[i] = 1;
-			}
+			// calculate zone thresholds
+			int round_elim_threshold = elim_threshold(current_alive_count, current_elim_rate, 1);
+			int round_prize_threshold = round(current_alive_count * current_prize_rate);
 
 			// remove a life from the ones in the elim zone
-			int round_elim_threshold = elim_threshold(current_alive_count, current_elim_rate, 1);
 			for (int r = current_alive_count - 1; r >= round_elim_threshold; r--) {
 				int c_id = alive_ids[r];
 				current_lives[c_id]--;
@@ -126,8 +124,16 @@ void* simulation_thread(void* void_s) {
 				}
 			}
 
+			// select DRP level based on next round's contestant count and UDRP and UTRP thresholds
+			int universal_drp_level = (current_alive_count <= s->utrp_threshold) ? 3 : (
+				((current_alive_count <= s->udrp_threshold)) ? 2 : 1);
+
+			// wipe slate clean for next round's DRP data
+			for (int i = 0; i < s->full_contestant_count; i++) {
+				drp_level[i] = universal_drp_level;
+			}
+
 			// apply a prize to the people in the prize region
-			int round_prize_threshold = round(current_alive_count * current_prize_rate);
 			for (int r = 0; r < round_prize_threshold; r++) {
 				int c_id = alive_ids[r];
 
@@ -141,8 +147,9 @@ void* simulation_thread(void* void_s) {
 			}
 
 			// post-results life decay if the life decay phase is active
-			int lower_floor_flag = 1;
 			if (life_decay_timer == 0) {
+				int lower_floor_flag = 1;
+
 				for (int c = 0; c < s->full_contestant_count; c++) {
 
 					// apply life decay if they're above the floor
@@ -157,15 +164,15 @@ void* simulation_thread(void* void_s) {
 							lower_floor_flag = 0;
 						}
 					}
+				}
 
-					// decrease the floor to 1 if everyone's at or below the current floor
-					if (lower_floor_flag && life_decay_floor > 1) {
-						life_decay_floor = 1;
+				// decrease the floor to 1 if everyone's at or below the current floor
+				if (lower_floor_flag && life_decay_floor > 1) {
+					life_decay_floor = 1;
 
-						// set rates to the ones for 2nd phase of life decay
-						current_ld_elim_rate = s->ld_2_elim_rate;
-						current_ld_prize_rate = s->ld_2_prize_rate;
-					}
+					// set rates to the ones for 2nd phase of life decay
+					current_ld_elim_rate = s->ld_2_elim_rate;
+					current_ld_prize_rate = s->ld_2_prize_rate;
 				}
 			}
 
@@ -173,8 +180,10 @@ void* simulation_thread(void* void_s) {
 
 		} while (current_alive_count > 1);
 
+		// only one contestant left; give them the winner rank
 		final_ranks[alive_ids[0]] = 1;
 
+		// log all contestant ranks in the aggregate results
 		for (int i = 0; i < s->full_contestant_count; i++) {
 			int rank = final_ranks[i];
 

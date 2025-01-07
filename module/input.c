@@ -4,7 +4,8 @@
 
 SimulationInfo* create_sim_info(
 	int i_t, Contestant** b_f, int c_count, int* t_pts, int g_s, int* a_r, double e_r, double p_r,
-	int l_c, int ld_t, int ld_f, double ld_1_e_r, double ld_1_p_r, double ld_2_e_r, double ld_2_p_r) {
+	int l_c, int ld_t, int ld_f, double ld_1_e_r, double ld_1_p_r, double ld_2_e_r, double ld_2_p_r,
+	int udrp, int utrp) {
 
 	SimulationInfo* s = malloc(sizeof(SimulationInfo));
 
@@ -30,6 +31,9 @@ SimulationInfo* create_sim_info(
 	s->ld_2_elim_rate = ld_2_e_r;
 	s->ld_2_prize_rate = ld_2_p_r;
 
+	s->udrp_threshold = udrp;
+	s->utrp_threshold = utrp;
+
 	s->aggregate_results = a_r;
 	s->total_rounds_taken = 0;
 
@@ -39,8 +43,8 @@ SimulationInfo* create_sim_info(
 void read_game_rules(char* f_name, 
 	double* elim_rate, double* prize_rate, int* life_cap, int* life_decay_timer,
 	int* life_decay_floor, double* ld_1_elim_rate, double* ld_1_prize_rate,
-	double* ld_2_elim_rate, double* ld_2_prize_rate, int** threshold_points,
-	int* game_stages) {
+	double* ld_2_elim_rate, double* ld_2_prize_rate, int* udrp_threshold, int* utrp_threshold,
+	int** threshold_points, int* game_stages) {
 	
 	FILE* f = fopen(f_name, "r");
 
@@ -73,6 +77,11 @@ void read_game_rules(char* f_name,
 	fscanf(f, "%lf", ld_2_elim_rate);
 	fscanf(f, "%s", buf);
 	fscanf(f, "%lf", ld_2_prize_rate);
+
+	fscanf(f, "%s", buf);
+	fscanf(f, "%d", udrp_threshold);
+	fscanf(f, "%s", buf);
+	fscanf(f, "%d", utrp_threshold);
 
 	fscanf(f, "%s", buf);
 

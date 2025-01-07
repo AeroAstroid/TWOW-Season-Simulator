@@ -13,7 +13,7 @@ int main() {
 	seed_xoshiro();
 
 	int iteration_target, thread_count, contestant_count, game_stages,
-		life_decay_timer, life_decay_floor, life_cap;
+		life_decay_timer, life_decay_floor, life_cap, udrp_threshold, utrp_threshold;
 	
 	double elim_rate, prize_rate, ld_1_elim_rate, ld_1_prize_rate,
 		ld_2_elim_rate, ld_2_prize_rate;
@@ -23,7 +23,7 @@ int main() {
 	read_game_rules("data/game.txt",
 		&elim_rate, &prize_rate, &life_cap, &life_decay_timer, &life_decay_floor,
 		&ld_1_elim_rate, &ld_1_prize_rate, &ld_2_elim_rate, &ld_2_prize_rate,
-		&threshold_points, &game_stages);
+		&udrp_threshold, &utrp_threshold, &threshold_points, &game_stages);
 	
 	read_program_params("data/program.txt", &iteration_target, &thread_count);
 
@@ -38,7 +38,7 @@ int main() {
 	// create struct of simulation parameters that gets passed onto each thread
 	SimulationInfo* sim_info = create_sim_info(iteration_target, base_field, contestant_count, threshold_points,
 		game_stages, aggregate_results, elim_rate, prize_rate, life_cap, life_decay_timer, life_decay_floor,
-		ld_1_elim_rate, ld_1_prize_rate, ld_2_elim_rate, ld_2_prize_rate);
+		ld_1_elim_rate, ld_1_prize_rate, ld_2_elim_rate, ld_2_prize_rate, udrp_threshold, utrp_threshold);
 
 	printf("Running %d season simulations on %d thread(s)\n", iteration_target, thread_count);
 	
