@@ -1,4 +1,4 @@
-# Dark's TWOW Season Simulator
+# Dark's TWOW Season Simulator (EWOW Version)
 A simple, customizable C program that simulates seasons of TWOW given normal distribution data for each contestant.
 
 **This branch contains a version of the simulator tuned specifically for simulating EWOW. For a more generalized version of this simulator, [check the `main` branch of this repository.](https://github.com/AeroAstroid/TWOW-Season-Simulator/tree/main)**
@@ -17,9 +17,9 @@ The sample file in the repo contains data for all EWOW contestants as of EWOW 10
 The program reads game variables from the **`data/game.txt`** file. The file contains 10 customizable variables:
 
 * **`ELIM_RATE`:** the percentage of contestants that get eliminated/lose a life per round, expressed as a decimal value;
-* **`PRIZE_RATE`:** the percentage of contestants that prize in each round, expressed as a decimal value;
+* **`PRIZE_RATE`:** the percentage of contestants that prize in each round, expressed as a decimal value. By default, prizing gives an extra life if life decay isn't active, and gives an extra response if it is;
 * **`LIFE_CAP`:** the amount of lives at which a contestant can't gain any extra lives. If a contestant at the life cap places in the prize region, their life count does not change. Set this to 0 or -1 to have no life cap;
-* **`LIFE_DECAY_TIMER`:** the amount of simulated rounds until life decay kicks in. Life decay makes it so after results for each round, every contestant who isn't already on 1 life has their life count decayed by 1, such as in EWOW. Set this to 0 to make life decay start instantly, set this to -1 to have no life decay;
+* **`LIFE_DECAY_TIMER`:** the amount of simulated rounds until life decay kicks in. Life decay makes it so after results for each round, every contestant who's above the life floor (defined below) has their life count decayed by 1, such as in EWOW. Set this to 0 to make life decay start instantly, set this to -1 to have no life decay;
 * **`LIFE_DECAY_STARTING_FLOOR`:** the floor for the first phase of life decay, a.k.a. the amount of lives contestants get decayed to. Once every contestant is at or below the life floor, if the life floor is not already 1, it gets lowered to 1 and the second phase of life decay begins;
 * **`LD_PHASE_1_ELIM_RATE`:** once/if phase 1 of life decay starts, the elim rate variable will be set to this value until phase 2 of life decay starts;
 * **`LD_PHASE_1_PRIZE_RATE`:** once/if phase 1 of life decay starts, the prize rate variable will be set to this value until phase 2 of life decay starts;
@@ -31,7 +31,7 @@ The sample file in the repo contains values applicable to EWOW's game state as o
 
 ### Program Data
 
-The program reads program parameters from the **`data/program.txt`** file. The file contains two customizable variables:
+The program reads program parameters from the **`data/program.txt`** file. The file contains 2 customizable variables:
 
 * **`ITERATIONS`:** the amount of seasons the program will simulate before stopping;
 * **`THREADS`:** the amount of threads to run simulations with. It is not recommended to go above 4.
@@ -40,7 +40,7 @@ The program reads program parameters from the **`data/program.txt`** file. The f
 
 This program comes with pre-compiled executables for Windows and Linux. To run them, clone/download this repo to some folder on your computer, open a terminal of your choice in that folder, and run the command **`bin/simulator`**.
 
-Depending on your system's architecture, the executables may be incompatible with your system, and you'll need to compile the code yourself. To do so, you'll need the `gcc` compiler. To compile, run the command **`gcc main.c module/*.c -o bin/simulator -O1 -lm -Wno-unused-result`**. After that, you can use the run command from the last paragraph.
+Depending on your system's architecture, the executables may be incompatible with your system, and you'll need to compile the code yourself. To do so, you'll need the `gcc` compiler. If you don't already have it installed, [check out this tutorial.](https://www.youtube.com/watch?v=k6juv3mIr9o) To compile the code, run the command **`gcc main.c module/*.c -o bin/simulator -O1 -lm -Wno-unused-result`**. After that, you can use the run command from the last paragraph.
 
 If you have `make` installed on your system, you can also just use the commands **`make all`** to compile the code and **`make run`** to run it.
 
